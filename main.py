@@ -9,9 +9,19 @@ load_dotenv()
 # uses creds in env vars to grab all email containing attachments
 def get_email_list():
     mail = imaplib.IMAP4_SSL('mail.ias.edu')
-    mail.login('emailaddr@gmail.com', 'password')
+    user = os.environ.get('ATTACHMENT_FETCHER_USER')
+    if user == None:
+        exit("Did not find a username")
+    password = os.environ.get('ATTACHMENT_FETCHER_PASSWORD')
+    if password == None:
+        exit("Did not find a password")
+    try:
+        print(f"Attempting to login as {user} with password {password}")
+        mail.login(user, password)
+    except:
+        exit(f"Could not login as {user}")
     mail.select('inbox')
-    result, data = mail.uid('search', None, 'ALL')
+    result, data = mail.uid('search', 'ALL')
     uids=data[0].split()
     result, data = mail.uid('fetch', uids[-1], 'BODYSTRUCTURE')
     print(data)
@@ -33,7 +43,10 @@ def rename_pdf():
 
 # runs the steps 
 def main():
-    download_attachments(get_email_list())
-    for file in PDF_DIR:
-        rename_pdf(file, "PO" + parse_pdf(file))
+    get_email_list()
+    #download_attachments(get_email_list())
+    #for file in PDF_DIR:
+    #    rename_pdf(file, "PO" + parse_pdf(file))
     return
+if __name__ == "__main__":
+    main()
