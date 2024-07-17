@@ -1,0 +1,8 @@
+- Access mailbox IMAP
+- (use env vars for credentials)
+- Find emails with attachments. Must also be able to match 
+'from' field and partial match (regex) 'subject' field
+- Filter attachments by type(PDF)
+- Download all
+- parse pdfs to extract PO number
+- rename each PDF to its PO number (PO35XXX)
