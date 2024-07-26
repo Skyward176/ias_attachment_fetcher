@@ -1,4 +1,3 @@
-from tkinter import W
 from imap_tools import MailBox, AND
 from pypdf import PdfReader
 import os
@@ -13,7 +12,7 @@ def pdf_to_text(file): # convert to image using resolution 600 dpi
     #pdf to image
     doc = fitz.open(file)
     for page in doc:
-        mat = fitz.Matrix(1.2, 1.2)
+        mat = fitz.Matrix(2, 2)
         pixmap = page.get_pixmap(matrix=mat)
         output = f"./images/{page.number}.jpg"
         pixmap.save(output)
@@ -55,7 +54,7 @@ def copy_att(att, output_dir):
 def parse_pdf(file, field):
     data = pdf_to_text(file)
     
-    return
+    return data
 # rename the pdf
 def rename_pdf(file, value):
     return
@@ -78,7 +77,11 @@ def main():
     for file in os.listdir(output_dir):
         cur_name = f"{output_dir}/{file}"
         print(cur_name);
-        parse_pdf(cur_name, "#")
+        tokens = parse_pdf(cur_name, "#").split()
+        for index, token in enumerate(tokens):
+            if token == "#" or token == "#-" or token == "Po#" or token == "PO#":
+                print(tokens[index+1])
+                continue
     #     # rename_pdf(cur_name, parse_pdf(cur_name, field)) # rename the pdf with the value of the field we filter by
     return
 if __name__ == "__main__":
