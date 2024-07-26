@@ -56,7 +56,7 @@ def parse_pdf(file, field):
     
     return data
 # rename the pdf
-def get_filter_input():
+def get_filter_input(): # Could be skipped by env vars
     sender = input("Please input the sender to filter by: ")
     subject = input("Please input the subject keyword(s) to filter by: ")
     field = "PO #"
@@ -66,7 +66,14 @@ def get_filter_input():
 def main():
     #subject = os.environ.get("ATTACHMENT_FETCHER_SUBJECT")
     #sender = os.environ.get("ATTACHMENT_FETCHER_SENDER")
-    (subject, sender, field) = get_filter_input()
+
+    if(os.environ.get("ATTACHMENT_FILTER_USE_INPUT") == True ):
+        (subject, sender, field) = get_filter_input()
+    else:
+        subject = os.environ.get("ATTACHMENT_FETCHER_SUBJECT")
+        sender = os.environ.get("ATTACHMENT_FETCHER_SENDER")
+        field = os.environ.get("ATTACHMENT_FETCHER_FIELD")
+    
     mailList = get_email_list(subject, sender) # This has a list of all subject lines of emails containing PDF attachments and the containe PDF
     output_dir = os.environ.get("ATTACHMENT_FETCHER_OUTPUT")
     for mail in mailList:
