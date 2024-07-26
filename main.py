@@ -56,8 +56,6 @@ def parse_pdf(file, field):
     
     return data
 # rename the pdf
-def rename_pdf(file, value):
-    return
 def get_filter_input():
     sender = input("Please input the sender to filter by: ")
     subject = input("Please input the subject keyword(s) to filter by: ")
@@ -76,11 +74,11 @@ def main():
         print(f"{mail[0]}:  {mail[1].filename}")
     for file in os.listdir(output_dir):
         cur_name = f"{output_dir}/{file}"
-        print(cur_name);
+        print(cur_name)
         tokens = parse_pdf(cur_name, "#").split()
         for index, token in enumerate(tokens):
             if token == "#" or token == "#-" or token == "Po#" or token == "PO#":
-                print(tokens[index+1])
+                os.rename(f"{output_dir}/{file}", f"{output_dir}/po{tokens[index+1]}.pdf")
                 continue
     #     # rename_pdf(cur_name, parse_pdf(cur_name, field)) # rename the pdf with the value of the field we filter by
     return
