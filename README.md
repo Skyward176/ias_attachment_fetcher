@@ -1,8 +1,13 @@
 # Installation
+
 `brew install tesseract`
+
 `git clone https://github.com/Skyward176/ias_attachment_fetcher.git`
+
 `cd ./ias_attachment_fetcher`
+
 `python3 -m venv ./env`
+
 `pip install -r REQUIREMENTS.txt`
 
 # Usage
