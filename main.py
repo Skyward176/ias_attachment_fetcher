@@ -8,13 +8,16 @@ from PIL import Image
 
 load_dotenv()
 
-def pdf_to_text(file): # convert to image using resolution 600 dpi 
+def pdf_to_text(file, output_dir): # convert to image using resolution 600 dpi 
     #pdf to image
     doc = fitz.open(file)
+    images_dir = f"{output_dir}/images"
+    if not os.path.isdir(images_dir):
+        os.mkdir(images_dir)
     for page in doc:
         mat = fitz.Matrix(2, 2)
         pixmap = page.get_pixmap(matrix=mat)
-        output = f"./images/{page.number}.jpg"
+        output = f"{images_dir}/{page.number}.jpg"
         pixmap.save(output)
         img = pixmap.tobytes()
 
@@ -51,16 +54,15 @@ def copy_att(att, output_dir):
 
 # takes the name of a pdf, what we're filtering for, and returns what we wanted
 # currenty this is going to be locked to PO until i can get generic
-def parse_pdf(file, field):
-    data = pdf_to_text(file)
-    
+def parse_pdf(file, output_dir, field):
+    data = pdf_to_text(file, output_dir)
     return data
 # rename the pdf
 def get_filter_input(): # Could be skipped by env vars
     sender = input("Please input the sender to filter by: ")
     subject = input("Please input the subject keyword(s) to filter by: ")
-    field = "PO #"
-    field = input("Please input the target field for naming(leave blank for PO): ")
+    field = "PO #" # Field can ONLY be PO right now
+    # field = input("Please input the target field for naming(leave blank for PO): ")
     return(subject, sender,field)
 # runs the steps 
 def main():
@@ -72,18 +74,22 @@ def main():
     else:
         subject = os.environ.get("ATTACHMENT_FETCHER_SUBJECT")
         sender = os.environ.get("ATTACHMENT_FETCHER_SENDER")
-        field = os.environ.get("ATTACHMENT_FETCHER_FIELD")
-    
+        # field = os.environ.get("ATTACHMENT_FETCHER_FIELD")
+        field = "PO #" 
     mailList = get_email_list(subject, sender) # This has a list of all subject lines of emails containing PDF attachments and the containe PDF
     output_dir = os.environ.get("ATTACHMENT_FETCHER_OUTPUT")
     for mail in mailList:
         copy_att(mail[1], output_dir)
         print(f"{mail[0]}:  {mail[1].filename}")
     for file in os.listdir(output_dir):
+        if os.path.isdir(file):
+            continue
         cur_name = f"{output_dir}/{file}"
         print(cur_name)
-        tokens = parse_pdf(cur_name, "#").split()
+        tokens = parse_pdf(cur_name, output_dir, "#").split()
         for index, token in enumerate(tokens):
+            # Hardcoded way of looking for the different ways PO numbers are identified at IAS.
+            # This can be done much more elegantly with rules for different field with a some data structures and the such, maybe later.
             if token == "#" or token == "#-" or token == "Po#" or token == "PO#":
                 os.rename(f"{output_dir}/{file}", f"{output_dir}/po{tokens[index+1]}.pdf")
                 continue
